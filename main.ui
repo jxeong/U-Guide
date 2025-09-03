@@ -922,7 +922,7 @@ Button */
 }</string>
                   </property>
                   <property name="text">
-                   <string>Subway Monitoring System</string>
+                   <string>지하철 모니터링 시스템</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1164,42 +1164,7 @@ Button */
                      </property>
                      <widget class="QWidget" name="page">
                       <layout class="QGridLayout" name="gridLayout_20">
-                       <item row="1" column="0">
-                        <widget class="QLabel" name="WorkspaceName">
-                         <property name="styleSheet">
-                          <string notr="true">font-size: 25px;
-    font-weight: bold;
-    qproperty-alignment: AlignCenter;</string>
-                         </property>
-                         <property name="text">
-                          <string>Subway Monitoring Status</string>
-                         </property>
-                        </widget>
-                       </item>
                        <item row="2" column="0">
-                        <layout class="QGridLayout" name="gridLayout_19">
-                         <item row="0" column="0" colspan="2">
-                          <widget class="QFrame" name="workspace">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">background-color: rgb(52, 59, 72);</string>
-                           </property>
-                           <property name="frameShape">
-                            <enum>QFrame::Shape::StyledPanel</enum>
-                           </property>
-                           <property name="frameShadow">
-                            <enum>QFrame::Shadow::Raised</enum>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </item>
-                       <item row="3" column="0">
                         <widget class="QGroupBox" name="B_tagOX">
                          <property name="maximumSize">
                           <size>
@@ -1242,135 +1207,43 @@ QGroupBox::title {
                           <property name="spacing">
                            <number>0</number>
                           </property>
-                          <item row="0" column="1">
-                           <widget class="QLabel" name="onLabel">
-                            <property name="maximumSize">
-                             <size>
-                              <width>16777215</width>
-                              <height>40</height>
-                             </size>
-                            </property>
-                            <property name="styleSheet">
-                             <string notr="true">border: 1px solid #000000;
-    font-size: 16px;
-    font-weight: bold;
-    qproperty-alignment: AlignCenter;</string>
-                            </property>
-                            <property name="text">
-                             <string>승차 예정 인원</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="1" column="1">
-                           <widget class="QLabel" name="onPerson">
-                            <property name="maximumSize">
-                             <size>
-                              <width>16777215</width>
-                              <height>30</height>
-                             </size>
-                            </property>
-                            <property name="styleSheet">
-                             <string notr="true">border: 1px solid #000000;
-    font-size: 16px;
-    font-weight: bold;
-    qproperty-alignment: AlignCenter;
-border-top:0;</string>
-                            </property>
-                            <property name="text">
-                             <string>0</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="0" column="0">
-                           <widget class="QLabel" name="offLabel">
-                            <property name="maximumSize">
-                             <size>
-                              <width>16777215</width>
-                              <height>40</height>
-                             </size>
-                            </property>
-                            <property name="styleSheet">
-                             <string notr="true">border: 1px solid #000000;
-    font-size: 16px;
-    font-weight: bold;
-    qproperty-alignment: AlignCenter;</string>
-                            </property>
-                            <property name="text">
-                             <string>하차 예정 인원</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="1" column="0">
-                           <widget class="QLabel" name="offPerson">
-                            <property name="maximumSize">
-                             <size>
-                              <width>16777215</width>
-                              <height>30</height>
-                             </size>
-                            </property>
-                            <property name="styleSheet">
-                             <string notr="true">border: 1px solid #000000;
-    font-size: 16px;
-    font-weight: bold;
-    qproperty-alignment: AlignCenter;
-border-top:0;</string>
-                            </property>
-                            <property name="text">
-                             <string>0</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="0" column="2">
-                           <widget class="QLabel" name="helpLabel">
-                            <property name="maximumSize">
-                             <size>
-                              <width>16777215</width>
-                              <height>40</height>
-                             </size>
-                            </property>
-                            <property name="styleSheet">
-                             <string notr="true">border: 1px solid #000000;
-    font-size: 16px;
-    font-weight: bold;
-    qproperty-alignment: AlignCenter;</string>
-                            </property>
-                            <property name="text">
-                             <string>도움 요청 인원</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="1" column="2">
-                           <widget class="QLabel" name="helpPerson">
-                            <property name="maximumSize">
-                             <size>
-                              <width>16777215</width>
-                              <height>30</height>
-                             </size>
-                            </property>
-                            <property name="styleSheet">
-                             <string notr="true">border: 1px solid #000000;
-    font-size: 16px;
-    font-weight: bold;
-    qproperty-alignment: AlignCenter;
-border-top:0;</string>
-                            </property>
-                            <property name="text">
-                             <string>0</string>
-                            </property>
-                           </widget>
-                          </item>
                          </layout>
                         </widget>
                        </item>
                        <item row="0" column="0">
-                        <widget class="QPushButton" name="btnExportCsv">
+                        <widget class="QLabel" name="WorkspaceName">
                          <property name="styleSheet">
-                          <string notr="true">background-color: rgb(52, 59, 72);</string>
+                          <string notr="true">font-size: 25px;
+    font-weight: bold;
+    qproperty-alignment: AlignCenter;</string>
                          </property>
                          <property name="text">
-                          <string>data collect button</string>
+                          <string>우이신설선 2호칸 휠체어 탑승 현황</string>
                          </property>
                         </widget>
+                       </item>
+                       <item row="1" column="0">
+                        <layout class="QGridLayout" name="gridLayout_19">
+                         <item row="0" column="0" colspan="2">
+                          <widget class="QFrame" name="workspace">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true">background-color: rgb(52, 59, 72);</string>
+                           </property>
+                           <property name="frameShape">
+                            <enum>QFrame::Shape::StyledPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Shadow::Raised</enum>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </item>
                       </layout>
                      </widget>

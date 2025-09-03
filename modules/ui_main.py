@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.8.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -803,32 +803,6 @@ class Ui_MainWindow(object):
         self.page.setObjectName(u"page")
         self.gridLayout_20 = QGridLayout(self.page)
         self.gridLayout_20.setObjectName(u"gridLayout_20")
-        self.WorkspaceName = QLabel(self.page)
-        self.WorkspaceName.setObjectName(u"WorkspaceName")
-        self.WorkspaceName.setStyleSheet(u"font-size: 25px;\n"
-"    font-weight: bold;\n"
-"    qproperty-alignment: AlignCenter;")
-
-        self.gridLayout_20.addWidget(self.WorkspaceName, 1, 0, 1, 1)
-
-        self.gridLayout_19 = QGridLayout()
-        self.gridLayout_19.setObjectName(u"gridLayout_19")
-        self.workspace = QFrame(self.page)
-        self.workspace.setObjectName(u"workspace")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.workspace.sizePolicy().hasHeightForWidth())
-        self.workspace.setSizePolicy(sizePolicy3)
-        self.workspace.setStyleSheet(u"background-color: rgb(52, 59, 72);")
-        self.workspace.setFrameShape(QFrame.Shape.StyledPanel)
-        self.workspace.setFrameShadow(QFrame.Shadow.Raised)
-
-        self.gridLayout_19.addWidget(self.workspace, 0, 0, 1, 2)
-
-
-        self.gridLayout_20.addLayout(self.gridLayout_19, 2, 0, 1, 1)
-
         self.B_tagOX = QGroupBox(self.page)
         self.B_tagOX.setObjectName(u"B_tagOX")
         self.B_tagOX.setMaximumSize(QSize(16777215, 80))
@@ -848,77 +822,34 @@ class Ui_MainWindow(object):
         self.gridLayout_4.setSpacing(0)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.onLabel = QLabel(self.B_tagOX)
-        self.onLabel.setObjectName(u"onLabel")
-        self.onLabel.setMaximumSize(QSize(16777215, 40))
-        self.onLabel.setStyleSheet(u"border: 1px solid #000000;\n"
-"    font-size: 16px;\n"
+
+        self.gridLayout_20.addWidget(self.B_tagOX, 2, 0, 1, 1)
+
+        self.WorkspaceName = QLabel(self.page)
+        self.WorkspaceName.setObjectName(u"WorkspaceName")
+        self.WorkspaceName.setStyleSheet(u"font-size: 25px;\n"
 "    font-weight: bold;\n"
 "    qproperty-alignment: AlignCenter;")
 
-        self.gridLayout_4.addWidget(self.onLabel, 0, 1, 1, 1)
+        self.gridLayout_20.addWidget(self.WorkspaceName, 0, 0, 1, 1)
 
-        self.onPerson = QLabel(self.B_tagOX)
-        self.onPerson.setObjectName(u"onPerson")
-        self.onPerson.setMaximumSize(QSize(16777215, 30))
-        self.onPerson.setStyleSheet(u"border: 1px solid #000000;\n"
-"    font-size: 16px;\n"
-"    font-weight: bold;\n"
-"    qproperty-alignment: AlignCenter;\n"
-"border-top:0;")
+        self.gridLayout_19 = QGridLayout()
+        self.gridLayout_19.setObjectName(u"gridLayout_19")
+        self.workspace = QFrame(self.page)
+        self.workspace.setObjectName(u"workspace")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.workspace.sizePolicy().hasHeightForWidth())
+        self.workspace.setSizePolicy(sizePolicy3)
+        self.workspace.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        self.workspace.setFrameShape(QFrame.Shape.StyledPanel)
+        self.workspace.setFrameShadow(QFrame.Shadow.Raised)
 
-        self.gridLayout_4.addWidget(self.onPerson, 1, 1, 1, 1)
-
-        self.offLabel = QLabel(self.B_tagOX)
-        self.offLabel.setObjectName(u"offLabel")
-        self.offLabel.setMaximumSize(QSize(16777215, 40))
-        self.offLabel.setStyleSheet(u"border: 1px solid #000000;\n"
-"    font-size: 16px;\n"
-"    font-weight: bold;\n"
-"    qproperty-alignment: AlignCenter;")
-
-        self.gridLayout_4.addWidget(self.offLabel, 0, 0, 1, 1)
-
-        self.offPerson = QLabel(self.B_tagOX)
-        self.offPerson.setObjectName(u"offPerson")
-        self.offPerson.setMaximumSize(QSize(16777215, 30))
-        self.offPerson.setStyleSheet(u"border: 1px solid #000000;\n"
-"    font-size: 16px;\n"
-"    font-weight: bold;\n"
-"    qproperty-alignment: AlignCenter;\n"
-"border-top:0;")
-
-        self.gridLayout_4.addWidget(self.offPerson, 1, 0, 1, 1)
-
-        self.helpLabel = QLabel(self.B_tagOX)
-        self.helpLabel.setObjectName(u"helpLabel")
-        self.helpLabel.setMaximumSize(QSize(16777215, 40))
-        self.helpLabel.setStyleSheet(u"border: 1px solid #000000;\n"
-"    font-size: 16px;\n"
-"    font-weight: bold;\n"
-"    qproperty-alignment: AlignCenter;")
-
-        self.gridLayout_4.addWidget(self.helpLabel, 0, 2, 1, 1)
-
-        self.helpPerson = QLabel(self.B_tagOX)
-        self.helpPerson.setObjectName(u"helpPerson")
-        self.helpPerson.setMaximumSize(QSize(16777215, 30))
-        self.helpPerson.setStyleSheet(u"border: 1px solid #000000;\n"
-"    font-size: 16px;\n"
-"    font-weight: bold;\n"
-"    qproperty-alignment: AlignCenter;\n"
-"border-top:0;")
-
-        self.gridLayout_4.addWidget(self.helpPerson, 1, 2, 1, 1)
+        self.gridLayout_19.addWidget(self.workspace, 0, 0, 1, 2)
 
 
-        self.gridLayout_20.addWidget(self.B_tagOX, 3, 0, 1, 1)
-
-        self.btnExportCsv = QPushButton(self.page)
-        self.btnExportCsv.setObjectName(u"btnExportCsv")
-        self.btnExportCsv.setStyleSheet(u"background-color: rgb(52, 59, 72);")
-
-        self.gridLayout_20.addWidget(self.btnExportCsv, 0, 0, 1, 1)
+        self.gridLayout_20.addLayout(self.gridLayout_19, 1, 0, 1, 1)
 
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QWidget()
@@ -1315,7 +1246,7 @@ class Ui_MainWindow(object):
         self.toggleButton.setText(QCoreApplication.translate("MainWindow", u"Hide", None))
         self.btn_home.setText(QCoreApplication.translate("MainWindow", u"Home", None))
         self.btn_new.setText(QCoreApplication.translate("MainWindow", u"Workspace", None))
-        self.titleRightInfo.setText(QCoreApplication.translate("MainWindow", u"Subway Monitoring System", None))
+        self.titleRightInfo.setText(QCoreApplication.translate("MainWindow", u"\uc9c0\ud558\ucca0 \ubaa8\ub2c8\ud130\ub9c1 \uc2dc\uc2a4\ud15c", None))
 #if QT_CONFIG(tooltip)
         self.minimizeAppBtn.setToolTip(QCoreApplication.translate("MainWindow", u"Minimize", None))
 #endif // QT_CONFIG(tooltip)
@@ -1328,15 +1259,8 @@ class Ui_MainWindow(object):
         self.closeAppBtn.setToolTip(QCoreApplication.translate("MainWindow", u"Close", None))
 #endif // QT_CONFIG(tooltip)
         self.closeAppBtn.setText("")
-        self.WorkspaceName.setText(QCoreApplication.translate("MainWindow", u"Subway Monitoring Status", None))
         self.B_tagOX.setTitle(QCoreApplication.translate("MainWindow", u"GroupBox", None))
-        self.onLabel.setText(QCoreApplication.translate("MainWindow", u"\uc2b9\ucc28 \uc608\uc815 \uc778\uc6d0", None))
-        self.onPerson.setText(QCoreApplication.translate("MainWindow", u"0", None))
-        self.offLabel.setText(QCoreApplication.translate("MainWindow", u"\ud558\ucc28 \uc608\uc815 \uc778\uc6d0", None))
-        self.offPerson.setText(QCoreApplication.translate("MainWindow", u"0", None))
-        self.helpLabel.setText(QCoreApplication.translate("MainWindow", u"\ub3c4\uc6c0 \uc694\uccad \uc778\uc6d0", None))
-        self.helpPerson.setText(QCoreApplication.translate("MainWindow", u"0", None))
-        self.btnExportCsv.setText(QCoreApplication.translate("MainWindow", u"data collect button", None))
+        self.WorkspaceName.setText(QCoreApplication.translate("MainWindow", u"\uc6b0\uc774\uc2e0\uc124\uc120 2\ud638\uce78 \ud720\uccb4\uc5b4 \ud0d1\uc2b9 \ud604\ud669", None))
         self.vertexY.setSuffix("")
         self.labelBoxBlenderInstalation_15.setText(QCoreApplication.translate("MainWindow", u"X:", None))
         self.vertexX.setPrefix("")

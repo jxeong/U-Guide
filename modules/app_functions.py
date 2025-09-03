@@ -5,6 +5,8 @@ import math
 import platform
 import shutil
 import sys
+from PySide6.QtGui import QPainterPath
+
 
 from PySide6.QtGui import QPixmap, QColor, QPainter, Qt
 from PySide6.QtWidgets import QMessageBox, QDialog, QListWidget, QPushButton, QVBoxLayout
@@ -19,7 +21,6 @@ from serial.tools import list_ports
 from modules.utils import resource_path
 from modules.uwb_functions import Calculation
 from modules.serial_handler import DualSerialHandler
-from modules.door_logger import DoorIntentLogger, DSConfig
 from datetime import datetime
 import re
 import sqlite3
@@ -28,6 +29,12 @@ import time
 import threading
 from shapely.geometry import Point, Polygon, LineString
 import glob
+from modules.intent_runtime import DoorIntentRuntime, RuntimeCfg
+import pyttsx3
+from PySide6.QtGui import QPixmap, QColor, QPainter, Qt, QPen, QFont, QImage, QTransform
+from PySide6.QtCore import QUrl, QTimer, QMetaObject, QRectF, QPointF
+from PySide6.QtGui import QPolygonF
+
 
 
 def get_existing_db_path():
@@ -191,7 +198,7 @@ class AppFunctions:
         self.parent.ui.pushButton.pressed.connect(self.open_existing_workspace)
 
         # dataset  수집
-        self.parent.ui.btnExportCsv.clicked.connect(lambda: self.export_intent_dataset_csv())
+#        self.parent.ui.btnExportCsv.clicked.connect(lambda: self.export_intent_dataset_csv())
 
         # inactive, active Button 관련
         self.tag_in_danger_zone = False
@@ -209,6 +216,98 @@ class AppFunctions:
         self.tag_timeout_timer.start(1000)  # 1초마다 검사
 
         self.initialize_kalman_filters()
+
+        #승하차 추론
+        self.last_alert_time =0
+
+        self.bg_image = None  # QImage
+        self.bg_opacity = 0.9  # 0.0~1.0
+        self.bg_image_path = None  # 선택(로그/재로딩용)
+
+    def set_background_png(self, path: str, opacity: float = 0.9):
+        """외부에서 호출: PNG 경로만 주면 vertex 폴리곤에 맞춰 그림."""
+        img = QImage(path)
+        if img.isNull():
+            QMessageBox.warning(self.parent, "오류", f"이미지 로드 실패: {path}")
+            return False
+        self.bg_image = img
+        self.bg_opacity = max(0.0, min(1.0, opacity))
+        self.bg_image_path = path
+        self.parent.ui.workspace.update()
+        return True
+
+    def clear_background_png(self):
+        self.bg_image = None
+        self.bg_image_path = None
+        self.parent.ui.workspace.update()
+
+    def _draw_png_in_vertices(self, painter: QPainter):
+        if self.bg_image is None:
+            return
+        if not hasattr(self, "vertex_points") or not self.vertex_points:
+            return
+
+        pts = list(self.vertex_points)
+        if hasattr(self, "moving_vertex") and self.moving_vertex and self.preview_vertex_position:
+            try:
+                idx = int(self.moving_vertex.split(" ")[1]) - 1
+                pts[idx] = self.preview_vertex_position
+            except Exception:
+                pass
+
+        qpts = [QPointF(x, y) for (x, y) in pts]
+        poly = QPolygonF(qpts)
+        bbox: QRectF = poly.boundingRect()
+        if bbox.width() <= 0 or bbox.height() <= 0:
+            return
+
+        # === 여기서는 원본 비율 무시 ===
+        target_w = bbox.width()
+        target_h = bbox.height()
+        x, y = bbox.x(), bbox.y()
+
+        painter.save()
+        clip_path = QPainterPath()
+        clip_path.addPolygon(poly)  # 다각형 내부만 보이게 clip
+        painter.setClipPath(clip_path)
+        painter.setOpacity(self.bg_opacity)
+        # 이미지를 bbox 크기에 맞춰 강제 리사이즈
+        painter.drawImage(QRectF(x, y, target_w, target_h), self.bg_image)
+        painter.restore()
+
+    def load_background_image(self):
+        path, _ = QFileDialog.getOpenFileName(self.parent, "PNG/JPG 선택", "", "Images (*.png *.jpg *.jpeg)")
+        if not path:
+            return
+        img = QImage(path)
+        if img.isNull():
+            QMessageBox.warning(self.parent, "오류", "이미지 로드 실패")
+            return
+        self.bg_image = img
+        self.bg_opacity = 0.85  # 필요시 투명도 조절
+        self.parent.ui.workspace.update()
+
+    def clear_background_image(self):
+        self.bg_image = None
+        self.parent.ui.workspace.update()
+
+    def play_tts(self, text, cooldown=5):
+        """TTS 알림 (스레드 분리 + 쿨다운 적용)"""
+        now = time.time()
+        if now - self.last_alert_time < cooldown:
+            return
+
+        def tts_worker():
+            try:
+                engine = pyttsx3.init()
+                engine.say(text)
+                engine.runAndWait()
+            except Exception as e:
+                print(f"[ERROR] TTS 실패: {e}")
+
+        # 스레드에서 실행 → 메인 루프(tag 업데이트)와 동시에 동작
+        threading.Thread(target=tts_worker, daemon=True).start()
+        self.last_alert_time = now
 
     def _extract_top_bottom_edges_from_vertices(self):
         """
@@ -231,21 +330,46 @@ class AppFunctions:
         LL, LR = bot2[0], bot2[1]
         return UL, UR, LL, LR
 
-    def _build_or_update_door_logger(self):
-        if not hasattr(self, "vertex_points") or len(self.vertex_points) < 4:
+
+    def _build_or_update_intent_runtime(self):
+        """
+        DoorIntentRuntime: 실시간 1Hz 윈도우 → GRU 추론
+        - anchor1=윗문, anchor2=아랫문 (meter 단위)
+        """
+        if not hasattr(self, "anchor_positions") or len(self.anchor_positions) < 3:
             return
-        if len(self.anchor_positions) < 3:
+        try:
+            anchor1_xy_m = self.anchor_positions[1]  # 윗문
+            anchor2_xy_m = self.anchor_positions[2]  # 아랫문
+        except Exception:
             return
 
-        cfg = DSConfig(window_sec=5, delta_sec=2.0, stride_sec=1, hz=1.0)
+        # 좌표 단위: calculate_position_for_tag()가 반환하는 x,y가 'm'이면 coords_unit="m"
+        cfg = RuntimeCfg(window_sec=5, downsample_hz=1.0, coords_unit="m")
+        self.intent_runtime = DoorIntentRuntime(
+            anchor1_xy_m=anchor1_xy_m,
+            anchor2_xy_m=anchor2_xy_m,
+            model_path="artifacts/intent_gru.pt",
+            scale_path="artifacts/scale.json",
+            cfg=cfg
+        )
 
-        vehicle_polygon = self.vertex_points
-        anchor1_xy = self.anchor_positions[1]  # 윗문
-        anchor2_xy = self.anchor_positions[2]  # 아랫문
-        print(anchor1_xy, anchor2_xy)
 
-        self.door_logger = DoorIntentLogger(vehicle_polygon, anchor1_xy, anchor2_xy,
-                                            cfg=cfg)
+        # (선택) 추론 콜백: UI 갱신/비프/로그 등
+        def _on_pred(res):
+            try:
+                if hasattr(self.parent.ui, "intentProb"):
+                    self.parent.ui.intentProb.setText(f"{res['prob']:.2f}")
+                if res["over_thresh"]:
+                    # 이제 블로킹 안 됨 → tag_position 계속 업데이트됨
+                    self.play_tts(
+                        "교통약자 승객의 승하차를 위해 공간을 양보해 주시면 감사하겠습니다.",
+                        cooldown=5
+                    )
+            except Exception as e:
+                print(f"[WARN] intent on_pred UI update failed: {e}")
+
+        self.intent_runtime.set_callback(_on_pred)  # ← 여기에 있음
 
     # ///////////////////////////////////////////////////////////////
     # 경고음 관련 함수
@@ -476,16 +600,13 @@ class AppFunctions:
 
         # ==== [데이터셋 로깅] 문 기준 r,dr 기록 + crossing 라벨용 시간 축적 ====
         try:
-            if hasattr(self, "door_logger"):
+            if hasattr(self, "intent_runtime"):
                 ts = time.time()
-                self.door_logger.log(
-                    ts=ts,
-                    x_cm=x,
-                    y_cm=y,
-                    inside_vehicle=is_in_danger
-                )
+                res = self.intent_runtime.log(ts=ts, x=x, y=y)  # 여기서 추론
+                if res is not None:
+                    print(f"[DEBUG] t={res['t_end']:.2f}, prob={res['prob']:.3f}, over={res['over_thresh']}")
         except Exception as e:
-            print(f"[WARN] door_logger log failed: {e}")
+            print(f"[WARN] intent_runtime log failed: {e}")
 
     # 위험구역 내 인원 카운트 함수
     def update_people_count(self):
@@ -638,6 +759,9 @@ class AppFunctions:
         if hasattr(self, "workspace_box") and self.workspace_box:
             painter.setBrush(self.workspace_color)  # 작업 공간 색상
             painter.drawRect(self.workspace_box)
+
+        #  여기서 PNG를 vertex 폴리곤에 맞춰 그림
+        self._draw_png_in_vertices(painter)
 
         # Vertex 점 그리기 및 선 연결
         if not hasattr(self, "vertex_points") or not self.vertex_points:
@@ -989,7 +1113,10 @@ class AppFunctions:
             vertices=self.vertex_data
         )
         self.parent.ui.workspace.update()  # 테두리 포함 다시 그리기
-        self._build_or_update_door_logger()
+
+        self.set_background_png(r"C:\Users\pyj02\Downloads\u_guide_0902\modules\subway.png", opacity=0.85)
+
+        self._build_or_update_intent_runtime()
 
         if hasattr(self.parent.ui, "workspaceName"):
             self.parent.ui.workspaceName.setText(f"{self.current_workspace_name}")
@@ -1617,28 +1744,4 @@ class AppFunctions:
             QToolTip.hideText()
             self.preview_vertex_position = None
 
-    def export_intent_dataset_csv(self, save_path=None, keep_session=True):
-        """
-        DoorIntentLogger에 누적된 샘플을 CSV로 저장.
-        - keep_session=False면 session_id 칼럼을 제거.
-        """
-        if not hasattr(self, "door_logger"):
-            QMessageBox.warning(self.parent, "경고", "Door logger가 아직 초기화되지 않았습니다.")
-            return
 
-        if not self.door_logger.samples:
-            QMessageBox.information(self.parent, "안내", "수집된 샘플이 없습니다.")
-            return
-
-        if save_path is None:
-            # 자동 파일명: intent_door_20250227_163045.csv
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            file_path = f"intent_door_{timestamp}.csv"
-        else:
-            file_path = save_path
-
-        try:
-            self.door_logger.export_csv(file_path, keep_session=keep_session)
-            QMessageBox.information(self.parent, "성공", f"CSV 저장 완료: {file_path}")
-        except Exception as e:
-            QMessageBox.critical(self.parent, "오류", f"CSV 저장 중 오류: {e}")
