@@ -1,77 +1,58 @@
-# PyDracula - Modern GUI PySide6 / PyQt6
-# 
+# UWB와 AI를 활용한 휠체어 지하철 승·하차 안전 보조 시스템
+GRU 기반 시계열 데이터 처리와 UWB 실시간 위치 추정을 활용한 배리어프리 프로젝트
 
-> ## :gift: **//// DONATE ////**
-> ## 🔗 Donate (Gumroad): https://gum.co/mHsRC
-> This interface is free for any use, but if you are going to use it commercially, consider helping to maintain this project and others with a donation by Gumroado at the link above. This helps to keep this and other projects active.
+## 📌 프로젝트 소개
+- **목표**: UWB(Ultra-Wideband) 센서를 활용해 휠체어 및 이동 약자의 실내 이동을 보조하는 안전 시스템 개발  
+- GRU 시계열 모델을 통한 센서 데이터 분석 + UWB 기반 실시간 위치 추적을 결합  
+- 실내 환경에서 정확한 위치 정보와 안전 모니터링 제공
 
-> **Warning**: this project was created using PySide6 and Python 3.9, using previous versions can cause compatibility problems.
+## 💡 실행 방법
+### 환경 설정
+- Python 3.10 이상
+- 주요 라이브러리: `PySide6`, `pandas`, `numpy`, `torch`, `cx_Freeze`
 
-# YouTube - Presentation And Tutorial
-Presentation and tutorial video with the main functions of the user interface.
-> 🔗 https://youtu.be/9DnaHg4M_AM
-
-# Multiple Themes
-![PyDracula_Default_Dark](https://user-images.githubusercontent.com/60605512/112993874-0b647700-9140-11eb-8670-61322d70dbe3.png)
-![PyDracula_Light](https://user-images.githubusercontent.com/60605512/112993918-18816600-9140-11eb-837c-e7a7c3d2b05e.png)
-
-# High DPI
-> Qt Widgets is an old technology and does not have a good support for high DPI settings, making these images look distorted when your system has DPI applied above 100%.
-You can minimize this problem using a workaround by applying this code below in "main.py" just below the import of the Qt modules.
-```python
-# ADJUST QT FONT DPI FOR HIGHT SCALE
-# ///////////////////////////////////////////////////////////////
-from modules import *
-from widgets import *
-os.environ["QT_FONT_DPI"] = "96"
-```
-
-# Running
-> Inside your preferred terminal run the commands below depending on your system, remembering before installing Python 3.9> and PySide6 "pip install PySide6".
-> ## **Windows**:
-```console
+### GUI 실행
+```bash
 python main.py
 ```
-> ## **MacOS and Linux**:
-```console
-python3 main.py
+
+### ⚙️ 개발 환경
+- GPU: `NVIDIA GeForce RTX 3060 Ti`
+- `Pycharm` 가상환경
+
+
+## 📁 프로젝트 구조
 ```
-# Compiling
-> ## **Windows**:
-```console
-python setup.py build
+├── README.md
+├── setup.py
+├── uguide_data.csv
+├── csv_merge.py
+├── main.py
+├── main.ui
+├── icon.ico
+│
+├── modules
+│   ├── __init__.py
+│   ├── app_functions.py
+│   ├── app_settings.py
+│   ├── door_logger.py
+│   ├── resources_rc.py
+│   ├── serial_handler.py
+│   ├── ui_functions.py
+│   ├── ui_main.py
+│   ├── utils.py
+│   ├── uwb_functions.py
+│   ├── workspace.db
+│   │
+│   └── logs
+│       └── __init__.py
+│
+├── widgets
+│   └── (커스텀 위젯 관련 코드들)
+│
+├── csv_files
+│   └── (CSV 데이터셋 저장)
+│
+└── images
+    └── (앵커 아이콘, GUI 관련 리소스)
 ```
-
-# Project Files And Folders
-> **main.py**: application initialization file.
-
-> **main.ui**: Qt Designer project.
-
-> **resouces.qrc**: Qt Designer resoucers, add here your resources using Qt Designer. Use version 6 >
-
-> **setup.py**: cx-Freeze setup to compile your application (configured for Windows).
-
-> **themes/**: add here your themes (.qss).
-
-> **modules/**: module for running PyDracula GUI.
-
-> **modules/app_funtions.py**: add your application's functions here.
-Up
-> **modules/app_settings.py**: global variables to configure user interface.
-
-> **modules/resources_rc.py**: "resource.qrc" file compiled for python using the command: ```pyside6-rcc resources.qrc -o resources_rc.py```.
-
-> **modules/ui_functions.py**: add here only functions related to the user interface / GUI.
-
-> **modules/ui_main.py**: file related to the user interface exported by Qt Designer. You can compile it manually using the command: ```pyside6-uic main.ui> ui_main.py ```.
-After expoting in .py and change the line "import resources_rc" to "from. Resoucers_rc import *" to use as a module.
-
-> **images/**: put all your images and icons here before converting to Python (resources_re.py) ```pyside6-rcc resources.qrc -o resources_rc.py```.
-
-# Projects Created Using PyDracula
-**See the projects that were created using PyDracula.**
-> To participate create a "Issue" with the name beginning with "#pydracula_project", leaving the link of your project on Github, name of the creator and what is its functionality. Your project will be added and this list will be deleted from "Issue".
-**Malicious programs will not be added**!
-
-
-
