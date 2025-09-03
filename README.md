@@ -24,7 +24,9 @@ python main.py
 ## 📁 프로젝트 구조
 ```bash
 U-Guide/
-├── artifacts/                # 빌드 산출물(배포 결과/임시 파일 저장)
+├── artifacts/                # 빌드/학습 산출물
+│   ├── Intent_gru.pt         # 학습된 GRU 모델 가중치
+│   └── scale.json            # 입력값 평균·표준편차 및 판별 기준 임계값
 ├── board_code/               # 보드용 펌웨어 코드(ESP32S3 UWB AT Demo 등)
 ├── images/                   # GUI 아이콘 및 리소스 이미지
 ├── modules/                  # 애플리케이션 핵심 모듈
