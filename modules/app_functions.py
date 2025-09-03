@@ -1114,7 +1114,7 @@ class AppFunctions:
         )
         self.parent.ui.workspace.update()  # 테두리 포함 다시 그리기
 
-        self.set_background_png(r"C:\Users\pyj02\Downloads\u_guide_0902\modules\subway.png", opacity=0.85)
+        self.set_background_png(r"C:\Users\DS\Downloads\u_guide_0902\u_guide_0902\modules\subway.png", opacity=0.85)
 
         self._build_or_update_intent_runtime()
 

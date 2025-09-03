@@ -58,30 +58,6 @@ class ParticleFilter:
         all_filtered = np.array([p.get_filtered_ranges() for p in self.particles])
         return np.mean(all_filtered, axis=0)
 
-# 거리 보정값 및 무빙 어베리지
-range_offset = 0.4
-window_size = 5
-
-class KalmanFilter:
-    def __init__(self, process_variance, measurement_variance):
-        self.process_variance = process_variance  # 프로세스 노이즈
-        self.measurement_variance = measurement_variance  # 측정 노이즈
-        self.estimate = 0  # 초기 추정값
-        self.error_estimate = 1  # 초기 오차 추정값
-
-    def update(self, measurement):
-        # 칼만 게인 계산
-        kalman_gain = self.error_estimate / (self.error_estimate + self.measurement_variance)
-
-        # 추정 업데이트
-        self.estimate = self.estimate + kalman_gain * (measurement - self.estimate)
-
-        # 오차 추정 업데이트
-        self.error_estimate = (1 - kalman_gain) * self.error_estimate + abs(
-            self.estimate - measurement) * self.process_variance
-
-        return self.estimate
-
 class Calculation:
     def __init__(self, anchor_count, anchor_offsets = None):
         """
@@ -96,78 +72,6 @@ class Calculation:
         }'''
         self.kalman_filters = {}
         # print(f"Kalman Filters Initialized: {list(self.kalman_filters.keys())}")
-
-    def moving_average(self, new_value, history_key):
-        history = self.distance_history[history_key]
-        history.append(new_value)
-        if len(history) > window_size:  # window_size 설정
-            history.pop(0)
-        return sum(history) / len(history)
-
-    def apply_correction_and_kf(self, raw_range, tag_id, anchor_index):
-        """
-        특정 태그(tag_id)와 특정 앵커(anchor_index)에 대해
-        거리 보정 및 칼만 필터 적용
-        """
-        anchor_key = f"Tag_{tag_id}_Anchor_{anchor_index}"
-
-        # 새로운 태그가 들어오면 칼만 필터를 동적으로 생성
-        if anchor_key not in self.kalman_filters:
-            self.kalman_filters[anchor_key] = KalmanFilter(process_variance=0.5, measurement_variance=0.01)
-            # print(f"[INFO] Created new Kalman Filter for {anchor_key}")
-
-        if raw_range is None:
-            # print("[ERROR] raw_range is None")
-            return None
-
-        # 거리 보정값 적용
-        if raw_range > 300:
-            range_offset = 90  # 먼 거리일 경우 보정값
-        else:
-            range_offset = 45  # 가까운 거리일 경우 보정값
-
-        corrected_range = max((raw_range - range_offset) * 0.01, 0)  # 보정 후 값 (m 단위)
-
-        # 칼만 필터 적용
-        filtered_range = self.kalman_filters[anchor_key].update(corrected_range)
-
-        return filtered_range
-
-    def apply_correction_and_particle(self, raw_ranges, tag_id):
-        """
-        하나의 태그(tag_id)에 대해 3개의 원시 거리값을 받아
-        보정 후 ParticleFilter + UKF 필터링 수행
-        :param raw_ranges: [range1, range2, range3]
-        :param tag_id: 태그 ID
-        :return: 필터링된 [filtered_range1, filtered_range2, filtered_range3]
-        """
-        if None in raw_ranges:
-            return None
-
-        # 고유 키 생성
-        anchor_key = f"Tag_{tag_id}"
-
-        # 필터가 없으면 생성
-        if anchor_key not in self.kalman_filters:
-            self.kalman_filters[anchor_key] = ParticleFilter(num_particles=35, init_value=100.0)
-
-        pf = self.kalman_filters[anchor_key]
-
-        # 거리 보정
-        corrected_ranges = []
-        for r in raw_ranges:
-            if r > 300:
-                offset = 90
-            else:
-                offset = 45
-            corrected = max((r - offset) * 0.01, 0)  # meter 단위로 변환
-            corrected_ranges.append(corrected)
-
-        # 필터링
-        pf.step(corrected_ranges)
-        filtered_ranges = pf.get_estimates()
-
-        return filtered_ranges
 
     def apply_correction_and_particle_single(self, raw_range, tag_id, anchor_index):
         """
@@ -199,41 +103,6 @@ class Calculation:
         ukf.update(np.array([corrected]))
 
         return ukf.x[0]
-
-    '''
-    def circle_intersections(self, c1, r1, c2, r2, epsilon=0.2):
-        """
-        두 원의 교점을 계산하는 함수. 중심 거리와 반지름 합/차에 허용 오차(epsilon)를 적용.
-        """
-        x1, y1 = c1
-        x2, y2 = c2
-        d = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)  # 두 중심 간의 거리
-
-        # 교차하지 않음
-        if d > r1 + r2 + epsilon:
-            print(f"교차하지 않음 (허용 오차 {epsilon}): 중심 거리(d={d}) > 반지름 합(r1+r2={r1 + r2})")
-            return None
-        # 내접 상태
-        elif d < abs(r1 - r2) - epsilon:
-            print(f"내접 상태 (허용 오차 {epsilon}): 중심 거리(d={d}) < 반지름 차(|r1-r2|={abs(r1 - r2)})")
-            return None
-        # 중심이 동일
-        elif d == 0:
-            print("중심이 동일함: 중심 거리(d=0)이며, 두 원의 중심이 같습니다.")
-            return None
-
-        # 두 원이 교차한다고 간주
-        a = (r1 ** 2 - r2 ** 2 + d ** 2) / (2 * d)
-        h = math.sqrt(max(r1 ** 2 - a ** 2, 0))  # max로 음수 방지
-
-        x3 = x1 + a * (x2 - x1) / d
-        y3 = y1 + a * (y2 - y1) / d
-
-        offset_x = h * (y2 - y1) / d
-        offset_y = h * (x2 - x1) / d
-
-        return (x3 + offset_x, y3 - offset_y), (x3 - offset_x, y3 + offset_y)
-    '''
 
     def circle_intersections(self, c1, r1, c2, r2, max_adjustments=5):
         """
@@ -356,33 +225,4 @@ class Calculation:
             return round(x, 2), round(y, 2)
 
         print("[경고] 유효한 교점 없음 → 위치 계산 실패")
-        return None, None
-
-    def refined_trilateration(self, a1_range, a2_range, a3_range, pos_a1, pos_a2, pos_a3, epsilon=0.2):
-        points = []
-        # A1 and A2
-        intersections = self.circle_intersections(pos_a1, a1_range, pos_a2, a2_range, epsilon)
-        # print(f'원 1,2 intersections{intersections}')
-        if intersections:
-            points.append(self.closest_point(intersections, pos_a3))
-
-        # A2 and A3
-        intersections = self.circle_intersections(pos_a2, a2_range, pos_a3, a3_range, epsilon)
-        # print(f'원 2,3 intersections{intersections}')
-
-        if intersections:
-            points.append(self.closest_point(intersections, pos_a1))
-
-        # A3 and A1
-        intersections = self.circle_intersections(pos_a3, a3_range, pos_a1, a1_range, epsilon)
-        # print(f'원 3,1 intersections{intersections}')
-
-        if intersections:
-            points.append(self.closest_point(intersections, pos_a2))
-
-        if len(points) == 3:
-            x = sum(p[0] for p in points) / 3
-            y = sum(p[1] for p in points) / 3
-            return round(x, 2), round(y, 2)
-
         return None, None
