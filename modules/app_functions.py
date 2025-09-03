@@ -355,7 +355,7 @@ class AppFunctions:
         )
 
 
-        # (선택) 추론 콜백: UI 갱신/비프/로그 등
+        # 추론 콜백: UI 갱신/비프/로그 등
         def _on_pred(res):
             try:
                 if hasattr(self.parent.ui, "intentProb"):
@@ -370,26 +370,6 @@ class AppFunctions:
                 print(f"[WARN] intent on_pred UI update failed: {e}")
 
         self.intent_runtime.set_callback(_on_pred)  # ← 여기에 있음
-
-    # ///////////////////////////////////////////////////////////////
-    # 경고음 관련 함수
-    # ///////////////////////////////////////////////////////////////
-    def play_beep_sound(self):
-        """ 비프음 경고음을 비동기로 실행하여 블로킹을 방지 """
-
-        def beep():
-            system_os = platform.system()
-            if system_os == "Windows":
-                import ctypes
-                ctypes.windll.kernel32.Beep(1000, 500)  # 1000Hz, 500ms 지속
-            elif system_os == "Linux" or system_os == "Darwin":
-                os.system("echo -e '\\a'")  # 터미널 비프음
-                print("\a")  # 콘솔에서 비프음 출력
-            else:
-                print("[WARNING] 비프음이 지원되지 않는 OS입니다.")
-
-        # 비프음 재생을 별도의 스레드에서 실행하여 블로킹 방지
-        threading.Thread(target=beep, daemon=True).start()
 
     # ///////////////////////////////////////////////////////////////
     # 시리얼통신 설정
@@ -574,7 +554,7 @@ class AppFunctions:
         # 태그 위치 업데이트
         self.tag_positions[tag_index] = (x_scaled, y_scaled)
 
-        # 🟢 현재 태그가 위험 구역 안에 있는지 확인
+        # 현재 태그가 위험 구역 안에 있는지 확인
         is_in_danger = False  # 기본값 (위험하지 않음)
         if hasattr(self, "vertex_points"):
             danger_polygon = Polygon(self.vertex_points)  # 다각형 객체 생성
@@ -791,7 +771,7 @@ class AppFunctions:
                 x_last, y_last = preview_points[-1]
                 painter.drawLine(int(x_last), int(y_last), int(x_first), int(y_first))
 
-        # (2) Vertex 점 및 이름 표시
+        # Vertex 점 및 이름 표시
         for i, (x, y) in enumerate(self.vertex_points):
             # Vertex 점 (노란색 원)
             painter.setBrush(QColor(255, 255, 0))  # 노란색
